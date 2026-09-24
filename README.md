@@ -1,70 +1,317 @@
 # Java CRUD — Cadastro de Veículos
 
 <div align="center">
-  <img src="https://skillicons.dev/icons?i=java,maven,mysql,idea,git,github" alt="Java, Maven, MySQL, IntelliJ IDEA, Git e GitHub" />
+
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-Build-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![JDBC](https://img.shields.io/badge/JDBC-Database%20Access-007396?style=for-the-badge)
+![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ_IDEA-IDE-000000?style=for-the-badge&logo=intellijidea&logoColor=white)
+![Git](https://img.shields.io/badge/Git-Versionamento-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-Repositório-181717?style=for-the-badge&logo=github&logoColor=white)
+
 </div>
 
-<p align="center">
-  <strong>Projeto acadêmico de estudo sobre CRUD, POO, JDBC, MySQL e regras de negócio em Java.</strong>
-</p>
+## Sobre este repositório
+
+Este projeto é um **exercício acadêmico propositalmente simples**, desenvolvido para revisar os fundamentos de **Java, Programação Orientada a Objetos, JDBC, MySQL, regras de negócio e CRUD**.
+
+Meu nível técnico vai além do escopo apresentado aqui. A simplicidade deste repositório é intencional: a proposta da atividade é praticar a construção manual de um CRUD e entender claramente o papel de cada parte do sistema, sem adicionar frameworks ou abstrações que escondam o funcionamento básico.
+
+Também organizei este README como um material de apoio para colegas que estão tendo **primeiro contato com Java**. Por isso, alguns conceitos são explicados desde o início, com exemplos pequenos e linguagem direta.
+
+> O domínio usado no projeto é **Veículos**, mas a mesma lógica pode ser adaptada para alunos, produtos, clientes, livros, funcionários, pedidos e muitas outras entidades.
 
 ---
 
-## Sobre o projeto
+# 1. O que é um CRUD?
 
-Este projeto foi desenvolvido para estudar, de forma simples e prática, a construção de um **CRUD em Java**.
+CRUD é uma sigla para quatro operações básicas presentes em muitos sistemas:
 
-O domínio usado como exemplo é **Cadastro de Veículos**, mas o objetivo principal é entender uma estrutura que possa ser reutilizada em outros contextos, como:
+| Letra | Operação | Significado | SQL mais comum |
+|---|---|---|---|
+| C | Create | Criar / cadastrar | `INSERT` |
+| R | Read | Ler / consultar | `SELECT` |
+| U | Update | Atualizar | `UPDATE` |
+| D | Delete | Excluir | `DELETE` |
 
-- alunos;
-- produtos;
-- clientes;
-- livros;
-- funcionários;
-- pedidos.
-
-Além de ser um exercício funcional, este README também foi escrito como **material de revisão para prova**, principalmente para situações em que seja necessário montar a lógica de um CRUD no papel.
-
-> O foco do projeto é aprendizado. A intenção não é criar uma aplicação de produção complexa, e sim compreender bem cada responsabilidade do fluxo.
-
----
-
-## Fluxo geral
+Neste projeto, a exclusão foi tratada como **exclusão lógica**:
 
 ```text
-Main
-  ↓
-Service
-  ↓
-DAO
-  ↓
-JDBC
-  ↓
-MySQL
+ativo = true   → registro ativo
+ativo = false  → registro removido logicamente
 ```
 
-### Responsabilidade de cada parte
+Ou seja, o registro continua no banco, mas deixa de ser considerado ativo.
 
-| Camada | Responsabilidade |
-|---|---|
-| `Model` | Representa os dados e objetos do sistema |
-| `Service` | Aplica regras de negócio e validações |
-| `DAO` | Executa comandos SQL e acessa o banco |
-| `ConnectionFactory` | Abre a conexão JDBC |
-| `Main` | Executa o fluxo e os cenários de teste |
+---
 
-Uma forma simples de memorizar:
+# 2. Antes de Java: o que é uma variável?
+
+Uma variável é um espaço usado para guardar um valor durante a execução do programa.
+
+Exemplo:
+
+```java
+int ano = 2023;
+```
+
+Podemos ler assim:
 
 ```text
-MODEL   = dados
-SERVICE = regras
-DAO     = banco / SQL
-MAIN    = execução
+int       ano       = 2023;
+│          │           │
+tipo      nome        valor
+```
+
+- `int` → tipo da variável;
+- `ano` → nome da variável;
+- `2023` → valor armazenado.
+
+Também podemos declarar primeiro e atribuir depois:
+
+```java
+String marca;
+marca = "Toyota";
+```
+
+Ou fazer os dois ao mesmo tempo:
+
+```java
+String marca = "Toyota";
 ```
 
 ---
 
-## Estrutura do projeto
+# 3. Tipos de variáveis em Java
+
+Java é uma linguagem **fortemente tipada**. Isso significa que uma variável precisa ter um tipo definido.
+
+## `int`
+
+Usado para números inteiros.
+
+```java
+int idade = 20;
+int ano = 2023;
+int quantidade = 10;
+int id = 1;
+```
+
+Exemplos válidos:
+
+```text
+-10
+0
+25
+2026
+```
+
+---
+
+## `double`
+
+Usado para números com casas decimais.
+
+```java
+double altura = 1.69;
+double preco = 49.90;
+```
+
+> Em sistemas financeiros reais, normalmente usamos tipos como `BigDecimal` para valores monetários. Aqui o objetivo é apenas entender os tipos básicos.
+
+---
+
+## `boolean`
+
+Guarda apenas dois valores:
+
+```java
+true
+false
+```
+
+Exemplo:
+
+```java
+boolean ativo = true;
+```
+
+No projeto:
+
+```java
+private boolean ativo;
+```
+
+é usado para identificar se o veículo está ativo ou foi removido logicamente.
+
+---
+
+## `char`
+
+Guarda um único caractere.
+
+```java
+char letra = 'A';
+char opcao = 'S';
+```
+
+`char` usa aspas simples:
+
+```java
+'A'
+```
+
+---
+
+## `String`
+
+Usado para textos.
+
+```java
+String nome = "Anny";
+String placa = "ABC1D23";
+String modelo = "Corolla";
+```
+
+`String` utiliza aspas duplas:
+
+```java
+"Toyota"
+```
+
+Tecnicamente, `String` não é um tipo primitivo: é uma classe do Java. Mas, para quem está começando, o importante é lembrar que ela é usada para armazenar textos.
+
+---
+
+## Outros tipos que podem aparecer
+
+```java
+byte numeroPequeno = 10;
+short numero = 300;
+long numeroGrande = 100000L;
+float decimal = 10.5f;
+```
+
+Para este CRUD, os tipos mais importantes são:
+
+```text
+int
+String
+boolean
+```
+
+---
+
+# 4. Tipos primitivos x tipos por referência
+
+Alguns tipos básicos do Java são chamados de **primitivos**:
+
+```text
+byte
+short
+int
+long
+float
+double
+char
+boolean
+```
+
+Já classes e objetos são tipos por referência.
+
+Exemplos:
+
+```java
+String nome = "Toyota";
+Veiculo carro = new Veiculo(...);
+```
+
+Para este projeto, não é necessário aprofundar gerenciamento de memória. Basta entender:
+
+```text
+int, boolean, double... → tipos primitivos
+String, Veiculo...      → objetos / referências
+```
+
+---
+
+# 5. Operadores básicos
+
+Alguns operadores aparecem o tempo todo em Java.
+
+## Comparação
+
+```java
+idade > 18
+ano <= 2026
+id == 1
+id != 0
+```
+
+## Operadores lógicos
+
+```java
+&&  // E
+||  // OU
+!   // NÃO
+```
+
+Exemplo:
+
+```java
+if (placa == null || placa.isEmpty()) {
+    // placa inválida
+}
+```
+
+Nesse caso, a condição é verdadeira se:
+
+```text
+placa for null
+OU
+placa estiver vazia
+```
+
+---
+
+# 6. `if`, `else if` e `else`
+
+São usados para tomar decisões.
+
+```java
+if (idade < 18) {
+
+    System.out.println("Menor de idade");
+
+} else {
+
+    System.out.println("Maior de idade");
+}
+```
+
+Podemos ter mais condições:
+
+```java
+if (nota >= 7) {
+
+    System.out.println("Aprovado");
+
+} else if (nota >= 5) {
+
+    System.out.println("Recuperação");
+
+} else {
+
+    System.out.println("Reprovado");
+}
+```
+
+No nosso CRUD, `if / else` é usado principalmente no `Service` para validar regras de negócio.
+
+---
+
+# 7. Estrutura do projeto
 
 ```text
 java-crud-veiculos/
@@ -90,9 +337,25 @@ java-crud-veiculos/
                 └── VeiculoService.java
 ```
 
+O fluxo principal é:
+
+```text
+Main
+  ↓
+Service
+  ↓
+DAO
+  ↓
+JDBC
+  ↓
+MySQL
+```
+
+Cada parte possui uma responsabilidade específica.
+
 ---
 
-# 1. Model — entendendo a entidade
+# 8. Model — `Veiculo.java`
 
 A classe `Veiculo` representa o objeto principal do sistema.
 
@@ -109,73 +372,203 @@ public class Veiculo {
 }
 ```
 
-## Classe x objeto
+---
 
-A **classe** funciona como um molde.
+# 9. Classe e objeto
+
+## Classe
+
+Uma classe funciona como um molde.
 
 ```text
 Veiculo
 ```
 
-Um **objeto** é uma instância criada a partir dessa classe.
+Ela define quais informações e comportamentos um veículo possui.
+
+## Objeto
+
+Um objeto é uma instância criada a partir da classe.
 
 ```java
 Veiculo carro = new Veiculo(
-    "ABC1D23",
-    "Toyota",
-    "Corolla",
-    2023,
-    "Prata"
+        "ABC1D23",
+        "Toyota",
+        "Corolla",
+        2023,
+        "Prata"
 );
 ```
 
-Nesse exemplo:
+Podemos visualizar assim:
 
 ```text
-Classe  → Veiculo
-Objeto  → carro
-Marca   → Toyota
-Modelo  → Corolla
-Placa   → ABC1D23
+CLASSE
+Veiculo
+   ↓
+OBJETO
+Toyota Corolla
+```
+
+Outro exemplo:
+
+```text
+Classe: Aluno
+
+Objeto:
+Nome: Maria
+Matrícula: 12345
+Curso: Engenharia de Software
 ```
 
 ---
 
-## Encapsulamento
+# 10. Atributos
 
-Os atributos são privados:
+Atributos são informações guardadas dentro de uma classe.
 
 ```java
 private String placa;
+private String marca;
+private int ano;
 ```
 
-O acesso é feito por getters e setters:
+Eles representam aquilo que o objeto **tem**.
+
+Exemplo:
+
+```text
+Veiculo TEM:
+- placa
+- marca
+- modelo
+- ano
+- cor
+```
+
+Se fosse uma classe `Produto`:
+
+```java
+private int id;
+private String nome;
+private double preco;
+private int estoque;
+```
+
+---
+
+# 11. Métodos
+
+Métodos representam ações.
+
+Exemplo:
 
 ```java
 public String getPlaca() {
     return placa;
 }
+```
 
+Um método pode:
+
+- receber valores;
+- executar alguma lógica;
+- retornar um resultado;
+- não retornar nada.
+
+Exemplo sem retorno:
+
+```java
+public void setCor(String cor) {
+    this.cor = cor;
+}
+```
+
+O tipo `void` significa:
+
+```text
+este método não retorna nenhum valor
+```
+
+---
+
+# 12. `private`, `public` e encapsulamento
+
+Quando escrevemos:
+
+```java
+private String placa;
+```
+
+o atributo só pode ser acessado diretamente dentro da própria classe.
+
+Isso é parte do conceito de **encapsulamento**.
+
+Para permitir acesso controlado, usamos métodos `public`.
+
+```java
+public String getPlaca() {
+    return placa;
+}
+```
+
+Resumo:
+
+```text
+private → acesso restrito
+public  → acesso permitido
+```
+
+---
+
+# 13. Getter e Setter
+
+## Getter
+
+Usado para obter um valor.
+
+```java
+public String getPlaca() {
+    return placa;
+}
+```
+
+Uso:
+
+```java
+veiculo.getPlaca();
+```
+
+---
+
+## Setter
+
+Usado para alterar um valor.
+
+```java
 public void setPlaca(String placa) {
     this.placa = placa;
 }
 ```
 
-Isso é **encapsulamento**.
+Uso:
 
-### Para lembrar na prova
+```java
+veiculo.setPlaca("XYZ1A23");
+```
+
+Resumo:
 
 ```text
-private → protege o atributo
-get     → lê o valor
-set     → altera o valor
+get → pegar / ler
+set → definir / alterar
 ```
 
 ---
 
-# 2. Construtor e `this`
+# 14. Construtor
 
-O construtor cria e inicializa um objeto.
+O construtor é utilizado para criar e preparar um objeto.
 
 ```java
 public Veiculo(
@@ -185,6 +578,7 @@ public Veiculo(
         int ano,
         String cor
 ) {
+
     this.placa = placa;
     this.marca = marca;
     this.modelo = modelo;
@@ -194,28 +588,46 @@ public Veiculo(
 }
 ```
 
-Quando usamos:
+Quando fazemos:
+
+```java
+Veiculo carro = new Veiculo(
+        "ABC1D23",
+        "Toyota",
+        "Corolla",
+        2023,
+        "Prata"
+);
+```
+
+o Java chama esse construtor.
+
+---
+
+# 15. O que significa `this`?
+
+Veja:
 
 ```java
 this.placa = placa;
 ```
 
-podemos ler como:
+Podemos interpretar assim:
 
 ```text
-atributo do objeto = valor recebido pelo construtor
+this.placa = placa;
+     │         │
+ atributo   parâmetro
+ do objeto  recebido
 ```
 
 Ou:
 
-```text
-this.placa → atributo
-placa      → parâmetro
-```
+> A placa deste objeto recebe a placa passada como parâmetro.
 
 ---
 
-# 3. Banco de dados
+# 16. Banco de dados
 
 A tabela utilizada no projeto é:
 
@@ -231,32 +643,97 @@ CREATE TABLE veiculo (
 );
 ```
 
-Existe uma relação direta entre o objeto Java e a tabela:
+Existe uma relação entre os dados do Java e os dados do banco.
 
-| Java | Banco |
+| Java | MySQL |
 |---|---|
-| `int id` | `INTEGER` |
-| `String placa` | `VARCHAR` |
-| `String marca` | `VARCHAR` |
-| `String modelo` | `VARCHAR` |
-| `int ano` | `INTEGER` |
-| `String cor` | `VARCHAR` |
-| `boolean ativo` | `BOOLEAN` |
+| `int` | `INTEGER` |
+| `String` | `VARCHAR` |
+| `boolean` | `BOOLEAN` |
 
-### Termos importantes
+---
+
+# 17. `PRIMARY KEY`, `AUTO_INCREMENT` e `UNIQUE`
+
+## `PRIMARY KEY`
+
+Identifica unicamente cada registro.
+
+```sql
+id INTEGER PRIMARY KEY
+```
+
+Exemplo:
 
 ```text
-PRIMARY KEY    → identifica cada registro
-AUTO_INCREMENT → banco gera o ID automaticamente
-NOT NULL       → campo obrigatório
-UNIQUE         → não permite valor repetido
+id 1 → Corolla
+id 2 → Civic
+id 3 → Gol
 ```
 
 ---
 
-# 4. ConnectionFactory e JDBC
+## `AUTO_INCREMENT`
+
+O próprio banco gera o próximo ID.
+
+```sql
+id INTEGER PRIMARY KEY AUTO_INCREMENT
+```
+
+Não precisamos escolher manualmente:
+
+```text
+1
+2
+3
+4
+...
+```
+
+---
+
+## `UNIQUE`
+
+Não permite valores repetidos.
+
+```sql
+placa VARCHAR(10) UNIQUE
+```
+
+Assim, duas linhas não podem ter a mesma placa.
+
+---
+
+# 18. JDBC
+
+JDBC é a tecnologia utilizada pelo Java para conversar com bancos de dados relacionais.
+
+O fluxo é:
+
+```text
+Java
+ ↓
+JDBC
+ ↓
+MySQL
+```
+
+Neste projeto, usamos principalmente:
+
+```text
+Connection
+PreparedStatement
+ResultSet
+```
+
+---
+
+# 19. `ConnectionFactory`
 
 A `ConnectionFactory` centraliza a criação da conexão com o banco.
+
+Exemplo simplificado:
 
 ```java
 public static Connection getConnection()
@@ -270,33 +747,13 @@ public static Connection getConnection()
 }
 ```
 
-Fluxo:
+Assim, outras classes não precisam repetir toda a lógica de conexão.
 
-```text
-Java
- ↓
-DriverManager
- ↓
-JDBC
- ↓
-MySQL
-```
-
-## JDBC
-
-JDBC é a tecnologia usada para fazer o Java conversar com o banco de dados.
-
-Três nomes importantes para memorizar:
-
-```text
-Connection        → conexão com o banco
-PreparedStatement → prepara/executa SQL
-ResultSet         → recebe resultados de SELECT
-```
+> Credenciais reais de banco não devem ser publicadas no GitHub. Em projetos reais, use variáveis de ambiente ou mecanismos próprios de configuração.
 
 ---
 
-# 5. DAO — acesso ao banco
+# 20. DAO
 
 DAO significa:
 
@@ -304,7 +761,15 @@ DAO significa:
 Data Access Object
 ```
 
-Neste projeto, `VeiculoDAO` é responsável pelas operações de banco:
+O DAO cuida do acesso ao banco.
+
+Neste projeto:
+
+```text
+VeiculoDAO
+```
+
+possui operações como:
 
 ```text
 inserir()
@@ -315,52 +780,49 @@ atualizar()
 deletar()
 ```
 
-O DAO **não deve decidir regras de negócio**.
-
-Por exemplo, não é responsabilidade do DAO decidir se:
+Regra mental:
 
 ```text
-"O ano é válido?"
-"A placa deveria ser aceita?"
-"O veículo pode ser removido?"
+DAO = SQL + banco
 ```
 
-Essas decisões ficam no `Service`.
+O DAO não deve decidir regras de negócio.
 
 ---
 
-# 6. CRUD
+# 21. `PreparedStatement`
 
-CRUD representa quatro operações fundamentais:
+É usado para preparar comandos SQL.
 
-```text
-C → Create
-R → Read
-U → Update
-D → Delete
+Exemplo:
+
+```java
+String sql = """
+        INSERT INTO veiculo
+        (placa, marca, modelo, ano, cor, ativo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """;
 ```
 
-No SQL:
+Os `?` são valores que serão preenchidos depois.
 
-| CRUD | SQL |
-|---|---|
-| Create | `INSERT` |
-| Read | `SELECT` |
-| Update | `UPDATE` |
-| Delete | `DELETE` ou exclusão lógica |
+```java
+stmt.setString(1, veiculo.getPlaca());
+stmt.setString(2, veiculo.getMarca());
+stmt.setInt(4, veiculo.getAno());
+```
 
-Uma das principais coisas para memorizar para a prova é:
+O número representa a posição do `?`.
 
 ```text
-CREATE → INSERT
-READ   → SELECT
-UPDATE → UPDATE
-DELETE → DELETE
+1 → primeiro ?
+2 → segundo ?
+3 → terceiro ?
 ```
 
 ---
 
-## CREATE — cadastrar
+# 22. CREATE — cadastrar
 
 SQL:
 
@@ -370,76 +832,72 @@ INSERT INTO veiculo
 VALUES (?, ?, ?, ?, ?, ?);
 ```
 
-Java:
+Depois:
 
 ```java
-PreparedStatement stmt =
-        conexao.prepareStatement(sql);
-
-stmt.setString(1, veiculo.getPlaca());
-stmt.setString(2, veiculo.getMarca());
-stmt.setString(3, veiculo.getModelo());
-stmt.setInt(4, veiculo.getAno());
-stmt.setString(5, veiculo.getCor());
-stmt.setBoolean(6, veiculo.isAtivo());
-
 stmt.executeUpdate();
 ```
 
-### O que são os `?`
-
-Os `?` são valores que serão preenchidos pelo `PreparedStatement`.
-
-```java
-stmt.setString(1, veiculo.getPlaca());
-```
-
-significa:
+Fluxo:
 
 ```text
-preencha o primeiro ? com a placa
+Objeto Java
+    ↓
+VeiculoDAO
+    ↓
+INSERT
+    ↓
+MySQL
 ```
 
 ---
 
-## READ — consultar
+# 23. READ — consultar
 
-### Listar todos
+## Listar todos
 
 ```sql
 SELECT * FROM veiculo;
 ```
 
-```java
-ResultSet rs = stmt.executeQuery();
+Como podem existir vários resultados:
 
+```java
 while (rs.next()) {
-    // lê cada linha retornada
+    // lê cada linha
 }
 ```
 
-Usamos `while` porque podem existir vários registros.
+---
 
-### Buscar por ID
+## Buscar por ID
 
 ```sql
 SELECT * FROM veiculo
 WHERE id = ?;
 ```
 
+Como um ID identifica apenas um registro:
+
 ```java
 if (rs.next()) {
-    // cria o objeto encontrado
+    // encontrou
 }
 ```
 
-Podemos usar `if` porque um ID identifica apenas um registro.
-
 ---
 
-## ResultSet
+# 24. `ResultSet`
 
-O `ResultSet` representa os dados retornados por um `SELECT`.
+`ResultSet` representa o resultado retornado pelo banco.
+
+Exemplo:
+
+```java
+ResultSet rs = stmt.executeQuery();
+```
+
+Podemos ler os valores:
 
 ```java
 rs.getString("placa");
@@ -447,19 +905,21 @@ rs.getString("marca");
 rs.getInt("ano");
 ```
 
-O raciocínio é:
+Depois transformamos a linha do banco em um objeto:
 
 ```text
 Banco
  ↓
 ResultSet
  ↓
-Objeto Java
+Veiculo
 ```
 
 ---
 
-## UPDATE — atualizar
+# 25. UPDATE — atualizar
+
+SQL:
 
 ```sql
 UPDATE veiculo
@@ -472,40 +932,30 @@ SET placa = ?,
 WHERE id = ?;
 ```
 
-O ponto mais importante é:
+O `WHERE` é muito importante.
 
 ```sql
 WHERE id = ?
 ```
 
-É ele que define **qual registro será atualizado**.
+significa:
 
-Fluxo:
+> atualize somente o registro daquele ID.
 
-```text
-buscar objeto
-      ↓
-alterar objeto
-      ↓
-DAO.atualizar()
-      ↓
-UPDATE no banco
-```
+Sem `WHERE`, vários registros poderiam ser alterados.
 
 ---
 
-## DELETE — remover
+# 26. DELETE — remover
 
-Neste projeto foi utilizada **exclusão lógica**.
-
-Em vez de apagar fisicamente:
+Em um CRUD tradicional:
 
 ```sql
 DELETE FROM veiculo
 WHERE id = ?;
 ```
 
-utilizamos:
+Neste projeto usamos exclusão lógica:
 
 ```sql
 UPDATE veiculo
@@ -513,146 +963,151 @@ SET ativo = false
 WHERE id = ?;
 ```
 
-Assim:
-
-```text
-ativo = true  → registro ativo
-ativo = false → removido logicamente
-```
-
-O registro continua no banco, mas passa a ser considerado inativo.
+O registro permanece salvo, mas passa a ficar inativo.
 
 ---
 
-# 7. Service — regras de negócio
+# 27. Service
 
-O `Service` valida os dados antes de chamar o DAO.
+O `Service` concentra as regras de negócio.
+
+Regra mental:
+
+```text
+Service = validações + decisões
+```
 
 Exemplo:
 
 ```java
-public void cadastrarVeiculo(Veiculo veiculo) {
+if (veiculo.getPlaca() == null
+        || veiculo.getPlaca().isEmpty()) {
 
-    if (veiculo.getPlaca() == null
-            || veiculo.getPlaca().isEmpty()) {
+    throw new IllegalArgumentException(
+            "Placa é obrigatória."
+    );
 
-        throw new IllegalArgumentException(
-                "Placa é obrigatória."
-        );
+} else if (veiculoDAO.buscarPorPlaca(
+        veiculo.getPlaca()) != null) {
 
-    } else if (veiculo.getAno()
-            > Year.now().getValue() + 1) {
+    throw new IllegalArgumentException(
+            "Placa já cadastrada."
+    );
 
-        throw new IllegalArgumentException(
-                "Ano inválido."
-        );
+} else {
 
-    } else if (veiculoDAO.buscarPorPlaca(
-            veiculo.getPlaca()) != null) {
-
-        throw new IllegalArgumentException(
-                "Placa já cadastrada."
-        );
-
-    } else {
-
-        veiculo.setAtivo(true);
-        veiculoDAO.inserir(veiculo);
-    }
+    veiculoDAO.inserir(veiculo);
 }
 ```
 
-A lógica pode ser resumida assim:
-
-```text
-dado inválido?
-→ erro
-
-outra regra inválida?
-→ erro
-
-está tudo certo?
-→ chama o DAO
-```
-
 ---
 
-## Regras utilizadas
+# 28. DAO x Service
 
-### Cadastro
+Essa diferença é importante.
+
+## DAO
+
+Pergunta:
+
+> Como salvo isso no banco?
+
+Exemplo:
 
 ```text
-placa vazia?
-→ erro
-
-ano inválido?
-→ erro
-
-placa duplicada?
-→ erro
-
-senão
-→ cadastrar
+INSERT
+SELECT
+UPDATE
+DELETE
 ```
 
-### Atualização
+## Service
+
+Pergunta:
+
+> Essa operação pode acontecer?
+
+Exemplo:
 
 ```text
-veículo existe?
-→ não → erro
-
-veículo está ativo?
-→ não → erro
-
+placa está vazia?
 ano é válido?
-→ não → erro
-
-senão
-→ atualizar
+registro existe?
+veículo está ativo?
+placa já existe?
 ```
 
-### Remoção
+Fluxo:
 
 ```text
-veículo existe?
-→ não → erro
-
-já está inativo?
-→ sim → erro
-
-senão
-→ ativo = false
-```
-
-### Consulta
-
-```text
-veículo encontrado?
-→ sim → retorna objeto
-
-não encontrado?
-→ erro
+Service valida
+      ↓
+se estiver tudo certo
+      ↓
+DAO executa
 ```
 
 ---
 
-# 8. Testes de fluxo
+# 29. Exceções e `try / catch`
 
-A `Main` do projeto também foi utilizada como um pequeno executor de cenários de teste.
+Algumas operações podem gerar erros.
 
-Entre os cenários verificados estão:
+Exemplo:
 
-```text
-[TESTE 01] Cadastro válido
-[TESTE 02] Placa duplicada
-[TESTE 03] Ano inválido
-[TESTE 04] Consulta por ID
-[TESTE 05] Atualização
-[TESTE 06] Remoção lógica
-[TESTE 07] Remoção duplicada
+```java
+try {
+
+    service.cadastrarVeiculo(veiculo);
+
+} catch (IllegalArgumentException e) {
+
+    System.out.println(e.getMessage());
+}
 ```
 
-O console mostra entrada, resultado esperado, resultado obtido e status.
+Podemos interpretar:
+
+```text
+try
+→ tente executar
+
+catch
+→ se acontecer aquele erro, trate aqui
+```
+
+No acesso ao banco também podemos ter:
+
+```java
+catch (SQLException e)
+```
+
+---
+
+# 30. Testes no `Main`
+
+O projeto possui um fluxo simples de testes executado pela `Main`.
+
+Exemplos de cenários:
+
+```text
+Cadastro válido
+Placa duplicada
+Ano inválido
+Consulta por ID
+Atualização
+Remoção lógica
+Remoção duplicada
+```
+
+O objetivo é visualizar:
+
+```text
+ENTRADA
+ESPERADO
+OBTIDO
+STATUS
+```
 
 Exemplo:
 
@@ -660,74 +1115,115 @@ Exemplo:
 [TESTE 02] Bloqueio de placa duplicada
 
 ENTRADA:
-Tentativa de cadastrar novamente TST9A99
+Placa: TST9A99
 
 ESPERADO:
-O cadastro deve ser bloqueado.
+O sistema deve impedir o cadastro.
 
-RESULTADO:
+OBTIDO:
 Placa já cadastrada.
 
 STATUS: [OK]
 ```
 
-> Atualmente esses testes são executados pela `Main` e acessam o banco real. Uma evolução natural seria utilizar JUnit e separar testes unitários de testes de integração.
+Esses testes são didáticos e executados pela própria aplicação. Não substituem uma suíte profissional com JUnit, mas ajudam a compreender o fluxo durante o estudo.
 
 ---
 
-# Revisão para a prova
+# 31. Como adaptar para outro tema
 
-Esta seção foi feita para conseguir reconstruir um CRUD mesmo que o tema da prova seja diferente.
+A parte mais importante deste exercício é perceber que o domínio pode mudar sem alterar o raciocínio principal.
 
-## Passo 1 — descubra a entidade
-
-Se a questão falar sobre produtos:
-
-```text
-Entidade = Produto
-```
-
-Se falar sobre alunos:
-
-```text
-Entidade = Aluno
-```
-
-Se falar sobre livros:
-
-```text
-Entidade = Livro
-```
-
----
-
-## Passo 2 — descubra os atributos
-
-Exemplo com `Produto`:
+## Se a prova pedir `Aluno`
 
 ```java
-private int id;
-private String nome;
-private double preco;
-private int estoque;
+public class Aluno {
+
+    private int id;
+    private String nome;
+    private String matricula;
+    private String curso;
+}
 ```
 
-Exemplo com `Aluno`:
+O CRUD pode ter:
 
-```java
-private int id;
-private String nome;
-private String matricula;
-private String curso;
+```text
+cadastrarAluno()
+buscarAluno()
+listarAlunos()
+atualizarAluno()
+removerAluno()
 ```
-
-O tema muda. **A estrutura continua praticamente a mesma.**
 
 ---
 
-## Passo 3 — crie a classe
+## Se a prova pedir `Produto`
 
-Modelo genérico:
+```java
+public class Produto {
+
+    private int id;
+    private String nome;
+    private double preco;
+    private int estoque;
+}
+```
+
+O CRUD continua sendo:
+
+```text
+CREATE
+READ
+UPDATE
+DELETE
+```
+
+O tema muda.
+
+A lógica permanece.
+
+---
+
+# 32. Modelo mental para montar um CRUD no papel
+
+Quando receber o enunciado, pense nesta ordem:
+
+```text
+1. Qual é a entidade?
+
+2. Quais são os atributos?
+
+3. Qual é o tipo de cada atributo?
+
+4. Qual campo identifica o registro?
+
+5. Criar a classe Model.
+
+6. Criar construtor.
+
+7. Criar getters e setters.
+
+8. Criar CREATE.
+
+9. Criar READ.
+
+10. Criar UPDATE.
+
+11. Criar DELETE.
+
+12. Criar regras de negócio.
+
+13. Main chama Service.
+
+14. Service chama DAO.
+
+15. DAO acessa o banco.
+```
+
+---
+
+# 33. Modelo genérico de classe
 
 ```java
 public class Entidade {
@@ -735,42 +1231,33 @@ public class Entidade {
     private int id;
     private String campo1;
     private String campo2;
+
+    public Entidade(
+            String campo1,
+            String campo2
+    ) {
+
+        this.campo1 = campo1;
+        this.campo2 = campo2;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getCampo1() {
+        return campo1;
+    }
+
+    public void setCampo1(String campo1) {
+        this.campo1 = campo1;
+    }
 }
 ```
 
 ---
 
-## Passo 4 — construtor
-
-```java
-public Entidade(
-        String campo1,
-        String campo2
-) {
-    this.campo1 = campo1;
-    this.campo2 = campo2;
-}
-```
-
----
-
-## Passo 5 — getters e setters
-
-```java
-public String getCampo1() {
-    return campo1;
-}
-
-public void setCampo1(String campo1) {
-    this.campo1 = campo1;
-}
-```
-
----
-
-# Modelos genéricos para lembrar na prova
-
-## INSERT
+# 34. Modelo genérico de INSERT
 
 ```java
 String sql = """
@@ -778,6 +1265,9 @@ String sql = """
         (campo1, campo2)
         VALUES (?, ?)
         """;
+
+PreparedStatement stmt =
+        conexao.prepareStatement(sql);
 
 stmt.setString(1, objeto.getCampo1());
 stmt.setString(2, objeto.getCampo2());
@@ -787,24 +1277,29 @@ stmt.executeUpdate();
 
 ---
 
-## SELECT
+# 35. Modelo genérico de SELECT
 
 ```java
 String sql =
         "SELECT * FROM tabela WHERE id = ?";
 
+PreparedStatement stmt =
+        conexao.prepareStatement(sql);
+
 stmt.setInt(1, id);
 
-ResultSet rs = stmt.executeQuery();
+ResultSet rs =
+        stmt.executeQuery();
 
 if (rs.next()) {
-    // montar objeto
+
+    // transformar os dados em objeto
 }
 ```
 
 ---
 
-## UPDATE
+# 36. Modelo genérico de UPDATE
 
 ```java
 String sql = """
@@ -822,7 +1317,7 @@ stmt.executeUpdate();
 
 ---
 
-## DELETE
+# 37. Modelo genérico de DELETE
 
 ```java
 String sql =
@@ -833,7 +1328,7 @@ stmt.setInt(1, id);
 stmt.executeUpdate();
 ```
 
-Ou, para exclusão lógica:
+Se houver exclusão lógica:
 
 ```java
 String sql = """
@@ -845,53 +1340,19 @@ String sql = """
 
 ---
 
-# Modelo mental do DAO
-
-Para quase toda operação JDBC, pense nesta estrutura:
-
-```java
-String sql = "...";
-
-try (
-    Connection conexao =
-            ConnectionFactory.getConnection();
-
-    PreparedStatement stmt =
-            conexao.prepareStatement(sql)
-) {
-
-    // preencher os ?
-    // executar SQL
-
-} catch (SQLException e) {
-
-    // tratar erro
-}
-```
-
-O que normalmente muda é:
-
-```text
-SQL
-parâmetros
-retorno
-```
-
----
-
-# Modelo mental do Service
+# 38. Modelo genérico de Service
 
 ```java
 if (dadoInvalido) {
 
     throw new IllegalArgumentException(
-            "Mensagem"
+            "Mensagem de erro"
     );
 
 } else if (outraRegraInvalida) {
 
     throw new IllegalArgumentException(
-            "Mensagem"
+            "Outra mensagem"
     );
 
 } else {
@@ -902,68 +1363,23 @@ if (dadoInvalido) {
 
 ---
 
-# Checklist para montar um CRUD no papel
+# 39. Resumo rápido para revisão
 
-Quando receber o enunciado, siga esta ordem:
-
-```text
-1. Qual é a entidade?
-
-2. Quais são os atributos?
-
-3. Qual atributo identifica o registro?
-
-4. Criar Model.
-
-5. Criar construtor.
-
-6. Criar getters e setters.
-
-7. Pensar no CREATE → INSERT.
-
-8. Pensar no READ → SELECT.
-
-9. Pensar no UPDATE → UPDATE.
-
-10. Pensar no DELETE → DELETE ou exclusão lógica.
-
-11. Criar os comandos SQL.
-
-12. Usar PreparedStatement.
-
-13. Usar ResultSet nos SELECTs.
-
-14. Colocar regras de negócio no Service.
-
-15. Main chama Service.
-
-16. Service chama DAO.
-
-17. DAO acessa o banco.
-```
-
----
-
-# Resumo de bolso
+## POO
 
 ```text
-MODEL
-= dados / objeto
-
-SERVICE
-= regras / validações
-
-DAO
-= SQL / banco
-
-CONNECTION FACTORY
-= conexão JDBC
-
-MAIN
-= execução / testes
+Classe      → molde
+Objeto      → instância da classe
+Atributo    → dado do objeto
+Método      → ação
+Construtor  → cria/prepara objeto
+Getter      → lê valor
+Setter      → altera valor
+private     → acesso restrito
+public      → acesso permitido
 ```
 
-### CRUD
+## CRUD
 
 ```text
 CREATE → INSERT
@@ -972,7 +1388,7 @@ UPDATE → UPDATE
 DELETE → DELETE
 ```
 
-### JDBC
+## JDBC
 
 ```text
 Connection
@@ -980,56 +1396,81 @@ PreparedStatement
 ResultSet
 ```
 
-### Regras
+## Camadas
 
 ```text
-if
-else if
-else
+Model
+= dados
+
+Service
+= regras de negócio
+
+DAO
+= acesso ao banco
+
+ConnectionFactory
+= conexão
+
+Main
+= execução / demonstração
 ```
 
-### Fluxo completo
+## Fluxo geral
 
 ```text
-Main → Service → DAO → JDBC → MySQL
+Main
+ ↓
+Service
+ ↓
+DAO
+ ↓
+JDBC
+ ↓
+MySQL
 ```
 
-Se esse fluxo estiver claro, o domínio pode mudar de **Veículo** para **Aluno**, **Produto**, **Livro** ou outra entidade sem mudar o raciocínio principal.
+---
+
+# 40. Para quem está começando
+
+Se você nunca programou em Java, não tente decorar o projeto inteiro de uma vez.
+
+Tente entender nesta ordem:
+
+```text
+variáveis
+   ↓
+if / else
+   ↓
+classe
+   ↓
+objeto
+   ↓
+atributos
+   ↓
+construtor
+   ↓
+getters / setters
+   ↓
+CRUD
+   ↓
+banco
+   ↓
+DAO
+   ↓
+Service
+```
+
+Depois que esse fluxo fizer sentido, trocar `Veiculo` por `Aluno`, `Produto` ou `Cliente` fica muito mais simples.
 
 ---
 
-## Tecnologias
+## Contexto acadêmico
 
-- Java 21
-- Maven
-- JDBC
-- MySQL
-- IntelliJ IDEA
-- Git
-- GitHub
+Este repositório foi criado para uma atividade acadêmica de revisão de CRUD em Java.
 
----
+A implementação foi mantida intencionalmente direta para tornar visíveis os fundamentos da linguagem, da orientação a objetos, das regras de negócio e do acesso ao banco com JDBC.
 
-## Possíveis evoluções
+Embora eu trabalhe e estude conceitos de software além deste nível introdutório, manter este exemplo simples também permite que ele seja utilizado como material de apoio por colegas que estão começando na linguagem.
 
-Algumas melhorias que podem ser exploradas futuramente:
-
-- JUnit;
-- testes unitários;
-- testes de integração;
-- exceções personalizadas;
-- usuário próprio do banco para a aplicação;
-- variáveis de ambiente para credenciais;
-- menu interativo no terminal;
-- Spring Boot;
-- API REST.
-
-Essas evoluções não fazem parte do objetivo inicial do projeto, que é compreender manualmente os fundamentos de um CRUD simples em Java.
-
----
-
-## Observação sobre credenciais
-
-Por segurança, senhas reais de banco de dados não devem ser publicadas no repositório.
-
-Em um projeto público, prefira variáveis de ambiente ou valores de exemplo para configurações sensíveis.
+A ideia não é mostrar a maior complexidade possível, e sim mostrar que **fundamentos bem entendidos tornam estruturas mais avançadas muito mais fáceis de compreender**.
