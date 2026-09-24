@@ -147,7 +147,11 @@ public class VeiculoDAO {
 
     public void deletar(int id) {
 
-        String sql = "DELETE FROM veiculo WHERE id = ?";
+        String sql = """
+            UPDATE veiculo
+            SET ativo = false
+            WHERE id = ?
+            """;
 
         try (
                 Connection conexao = ConnectionFactory.getConnection();
@@ -164,5 +168,42 @@ public class VeiculoDAO {
             System.out.println("Erro ao remover veículo:");
             System.out.println(e.getMessage());
         }
+    }
+
+    public Veiculo buscarPorPlaca(String placa) {
+
+        String sql = "SELECT * FROM veiculo WHERE placa = ?";
+
+        try (
+                Connection conexao = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, placa);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                Veiculo veiculo = new Veiculo(
+                        rs.getString("placa"),
+                        rs.getString("marca"),
+                        rs.getString("modelo"),
+                        rs.getInt("ano"),
+                        rs.getString("cor")
+                );
+
+                veiculo.setId(rs.getInt("id"));
+                veiculo.setAtivo(rs.getBoolean("ativo"));
+
+                return veiculo;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar veículo por placa:");
+            System.out.println(e.getMessage());
+        }
+
+        return null;
     }
 }
