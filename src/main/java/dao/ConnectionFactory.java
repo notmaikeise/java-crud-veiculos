@@ -6,9 +6,14 @@ import java.sql.SQLException;
 
 public class ConnectionFactory {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/veiculos_db";
-    private static final String USER = "root";
-    private static final String PASSWORD = "FeijãoComFarinha?27";
+    private static final String URL =
+            System.getenv("DB_URL");
+
+    private static final String USER =
+            System.getenv("DB_USER");
+
+    private static final String PASSWORD =
+            System.getenv("DB_PASSWORD");
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
