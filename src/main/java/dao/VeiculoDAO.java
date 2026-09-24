@@ -113,4 +113,56 @@ public class VeiculoDAO {
 
         return null;
     }
+
+    public void atualizar(Veiculo veiculo) {
+
+        String sql = """
+            UPDATE veiculo
+            SET placa = ?, marca = ?, modelo = ?, ano = ?, cor = ?, ativo = ?
+            WHERE id = ?
+            """;
+
+        try (
+                Connection conexao = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, veiculo.getPlaca());
+            stmt.setString(2, veiculo.getMarca());
+            stmt.setString(3, veiculo.getModelo());
+            stmt.setInt(4, veiculo.getAno());
+            stmt.setString(5, veiculo.getCor());
+            stmt.setBoolean(6, veiculo.isAtivo());
+            stmt.setInt(7, veiculo.getId());
+
+            stmt.executeUpdate();
+
+            System.out.println("Veículo atualizado com sucesso!");
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar veículo:");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void deletar(int id) {
+
+        String sql = "DELETE FROM veiculo WHERE id = ?";
+
+        try (
+                Connection conexao = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conexao.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(1, id);
+
+            stmt.executeUpdate();
+
+            System.out.println("Veículo removido com sucesso!");
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao remover veículo:");
+            System.out.println(e.getMessage());
+        }
+    }
 }
